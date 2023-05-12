@@ -68,9 +68,10 @@
             // lblInforming
             // 
             lblInforming.AutoSize = true;
+            lblInforming.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             lblInforming.Location = new Point(60, 168);
             lblInforming.Name = "lblInforming";
-            lblInforming.Size = new Size(213, 15);
+            lblInforming.Size = new Size(221, 15);
             lblInforming.TabIndex = 3;
             lblInforming.Text = "Please wait. Document page is loading.";
             // 
