@@ -12,12 +12,15 @@ namespace OnurScraping
         IWebDriver driver;
         string url = "https://rruff.info/all/display=default/";
         int downloadCount = 0;
-        string downloadPath = @"..\..\..\bin\Download";
-
+        string downloadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Download");
+        string errorsFilePath = null;
         public Form1()
         {
             InitializeComponent();
             FormClosing += Form1_FormClosing;
+            Directory.CreateDirectory(downloadPath);
+            errorsFilePath = Path.Combine(downloadPath, "errors.txt");
+            File.Create(errorsFilePath);
         }
 
         private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
@@ -29,9 +32,8 @@ namespace OnurScraping
         {
             await Task.Run(() =>
             {
-                string driverPath = @"..\..\..\bin\Debug";
                 ChromeOptions options = new ChromeOptions();
-                ChromeDriver driver = new ChromeDriver(driverPath, options);
+                ChromeDriver driver = new ChromeDriver(options);
                 this.driver = driver;
                 driver.Navigate().GoToUrl(url);
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
@@ -44,7 +46,7 @@ namespace OnurScraping
                     try
                     {
                         lblTotalDocument.Text = wait10s.Until(driver => js.ExecuteScript("return document.getElementsByTagName(\"tr\")[document.getElementsByTagName(\"tr\").length-8].children[2].innerText.substring(0,4)")).ToString();
-                        downloadCount = Directory.GetFiles(downloadPath).Count();
+                        downloadCount = Directory.GetFiles(downloadPath).Count()-1;
                         lblInforming.Text = $"{downloadCount} document has been downloaded before.";
                         btnDownload.Enabled = true;
                     }
@@ -66,7 +68,7 @@ namespace OnurScraping
                     btnDownload.Enabled = false;
                 }));
 
-                List<string> errorList = File.ReadAllLines(downloadPath + "\\errors.txt").Where(line => !string.IsNullOrEmpty(line)).ToList();
+                List<string> errorList = File.ReadAllLines(errorsFilePath).Where(line => !string.IsNullOrEmpty(line)).ToList();
 
                 int _downloadCounter = downloadCount;
 
@@ -107,7 +109,7 @@ namespace OnurScraping
                         string _header = driver.FindElement(By.XPath("//body//h1")).Text.Trim().ToLower();
                         if (!errorList.Contains(_header))
                         {
-                            using (StreamWriter writer = new StreamWriter(downloadPath + "\\errors.txt", true))
+                            using (StreamWriter writer = new StreamWriter(errorsFilePath, true))
                             {
                                 writer.WriteLine(errorList);
                             }
