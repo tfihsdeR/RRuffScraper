@@ -30,13 +30,16 @@ namespace OnurScraping
                 this.driver = driver;
                 driver.Navigate().GoToUrl(url);
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
-                IWebElement totalRecord = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//body[1]/form[1]/table[1]/tbody[1]/tr[4146]/th[1]/table[1]/tbody[1]/tr[1]/td[3]")));
+                //IWebElement totalRecord = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//body[1]/form[1]/table[1]/tbody[1]/tr[4146]/th[1]/table[1]/tbody[1]/tr[1]/td[3]")));
 
                 Invoke(new Action(() =>
                 {
                     try
                     {
-                        lblTotalDocument.Text = totalRecord.Text.Substring(0, 4);
+                        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                        WebDriverWait wait10s = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                        //lblTotalDocument.Text = totalRecord.Text.Substring(0, 4);
+                        lblTotalDocument.Text = wait10s.Until(driver => js.ExecuteScript("return document.getElementsByTagName(\"tr\")[document.getElementsByTagName(\"tr\").length-8].children[2].innerText.substring(0,4)")).ToString();
                         downloadCount = Directory.GetFiles(downloadPath).Count();
                         lblInforming.Text = $"{downloadCount} document has been downloaded before.";
                         btnDownload.Enabled = true;
